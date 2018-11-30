@@ -19,7 +19,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-
+// req type
+  // route the req
 
 
 module.exports = requestHandler = function(request, response) {
@@ -45,15 +46,31 @@ module.exports = requestHandler = function(request, response) {
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
+  let messages = { results: [] };
+
+
+  
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'application/json';
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
+
+  messages.results.push({
+    name: 'Kevin',
+    message: 'Mario to cool for school',
+    roomname: 'Chinny'
+  });
+
+
+
+
+  // check the request for a GET request
+    // render our response as a json object for returning a message
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -62,7 +79,7 @@ module.exports = requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  response.end(JSON.stringify(messages));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
