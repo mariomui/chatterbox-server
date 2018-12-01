@@ -11,8 +11,8 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-const emitter = require('events');
-
+const querystring = require('querystring');
+const _ = require('underscore');
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -23,6 +23,13 @@ var defaultCorsHeaders = {
 // req type
   // route the req
 let messages = { results: [] };
+let i = 0;
+messages.results.push({
+  username: 'Kevin',
+  text: "Mario is too cool for Hack Reactor",
+  roomname: 'lobby',
+  objectId: i,
+});
 
 var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
@@ -31,27 +38,30 @@ var requestHandler = function(request, response) {
   headers['Content-Type'] = 'application/json';
   
   let newMessage;
-
+  const query = querystring.parse(request.url, null, '?');
+  const domain = Object.keys(query)[0];
   // GET
-  if (request.url === '/classes/messages') {
+  if (domain === '/classes/messages') {
     if (request.method === 'GET') {
       var statusCode = 200;
+      let body = []
       response.writeHead(statusCode, headers); 
       response.end(JSON.stringify(messages));
     } else if (request.method === 'POST') {
       var statusCode = 201;
       response.writeHead(statusCode, headers);
-      
-
       request.on('data', data => {
         newMessage = JSON.parse(data.toString());
+        i++;
+        _.extend(newMessage, {objectId: i});
       });
-      
       request.on('end', () => {
         messages.results.push(newMessage);
         response.end(JSON.stringify(newMessage))
       });
-
+    } else if (request.method === 'OPTIONS') {
+      response.writeHead(200, headers);  
+      response.end('OPTIONS SENT');
     } else {
       response.end('NO METHOD ROUTE FOUND');
     }
