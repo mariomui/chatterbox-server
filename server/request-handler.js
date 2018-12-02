@@ -1,4 +1,3 @@
-const fs = require('fs');
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -12,8 +11,10 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+const fs = require('fs');
 const querystring = require('querystring');
 const _ = require('underscore');
+
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -31,6 +32,7 @@ let i = 0;
 //   roomname: '',
 //   objectId: i,
 // });
+const url = require('url');
 
 var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
@@ -40,18 +42,25 @@ var requestHandler = function(request, response) {
   
   let newMessage;
   const query = querystring.parse(request.url, null, '?');
-// console.log(query);
   const domain = Object.keys(query)[0];
-
-  if ( request.url === '/') {
+  var pathname = url.parse(request.url).pathname;
+  
+  if (request.url === '/') {
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(fs.readFileSync('../index.html'));
   }
-  if ( request.url === '/' + "?" + query['/']) {
+  if (request.url === '/' + '?' + query['/']) {
     response.writeHead(200, {'Content-Type': 'text/html'});
-
     response.end(fs.readFileSync('../index.html'));
   }
+  if (pathname.includes('client/styles/styles')) {
+    response.writeHead(200, {'Content-Type': 'text/css'});
+    response.end(fs.readFileSync('..'+pathname));
+  }  
+  if (pathname.includes('client') || pathname.includes('node')) {
+    response.writeHead(200, {'Content-Type': 'text/javascript'});
+    response.end(fs.readFileSync('..'+pathname));
+  }  
   // GET
   if (domain === '/classes/messages') {
     if (request.method === 'GET') {
