@@ -1,3 +1,4 @@
+const fs = require('fs');
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -39,18 +40,23 @@ var requestHandler = function(request, response) {
   
   let newMessage;
   const query = querystring.parse(request.url, null, '?');
-
+// console.log(query);
   const domain = Object.keys(query)[0];
 
   if ( request.url === '/') {
-    response.writeHead(200, headers);
-    response.end('Index Page Served');
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(fs.readFileSync('../index.html'));
   }
-  
+  if ( request.url === '/' + "?" + query['/']) {
+    response.writeHead(200, {'Content-Type': 'text/html'});
+
+    response.end(fs.readFileSync('../index.html'));
+  }
   // GET
   if (domain === '/classes/messages') {
     if (request.method === 'GET') {
       var statusCode = 200;
+      
       response.writeHead(statusCode, headers); 
       response.end(JSON.stringify(messages));
     } else if (request.method === 'POST') {
