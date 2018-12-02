@@ -24,12 +24,12 @@ var defaultCorsHeaders = {
   // route the req
 let messages = { results: [] };
 let i = 0;
-messages.results.push({
-  username: 'Kevin',
-  text: "Mario is too cool for Hack Reactor",
-  roomname: 'lobby',
-  objectId: i,
-});
+// messages.results.push({
+//   username: '',
+//   text: '',
+//   roomname: '',
+//   objectId: i,
+// });
 
 var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
@@ -39,12 +39,18 @@ var requestHandler = function(request, response) {
   
   let newMessage;
   const query = querystring.parse(request.url, null, '?');
+
   const domain = Object.keys(query)[0];
+
+  if ( request.url === '/') {
+    response.writeHead(200, headers);
+    response.end('Index Page Served');
+  }
+  
   // GET
   if (domain === '/classes/messages') {
     if (request.method === 'GET') {
       var statusCode = 200;
-      let body = []
       response.writeHead(statusCode, headers); 
       response.end(JSON.stringify(messages));
     } else if (request.method === 'POST') {
@@ -57,7 +63,7 @@ var requestHandler = function(request, response) {
       });
       request.on('end', () => {
         messages.results.push(newMessage);
-        response.end(JSON.stringify(newMessage))
+        response.end(JSON.stringify({objectId: i}));
       });
     } else if (request.method === 'OPTIONS') {
       response.writeHead(200, headers);  
@@ -70,7 +76,7 @@ var requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
     response.end('404 Error');
   }
-
+  // console.log(messages);
 };
 
 module.exports.requestHandler = requestHandler;

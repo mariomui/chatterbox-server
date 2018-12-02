@@ -73,5 +73,39 @@ describe('server', function() {
     });
   });
 
+  it('Addtnl: Should return 200 status code when client sends OPTIONS request to server', function(done) {
+    var requestParams = {
+      method: 'OPTIONS',
+      uri: 'http://localhost:3000/classes/messages'
+    };
+    request(requestParams, (error, response, body) => {
+      expect(response.statusCode).to.equal(200);
+      done();
+    });
+  });
+  
+  it('Addtnl: Should return 200 status code when client sends a GET request to the URL /', function(done) {
+    var requestParams = {
+      method: 'GET',
+      uri: 'http://localhost:3000/'
+    };
 
+    request(requestParams, function (error, response, body) {
+      expect(response.statusCode).to.equal(200);
+      done();
+    });
+  });
+  
+  it('Addtnl: Should return true if ObjectId in the GET response exists', function(done) {
+    var requestParams = {
+      method: 'GET',
+      uri: 'http://localhost:3000/classes/messages',
+    };
+
+    request(requestParams, (error, response, body) => {
+      const message = JSON.parse(body).results;
+      expect(message[0].hasOwnProperty('objectId')).to.equal(true);
+      done();
+    });
+  });
 });
