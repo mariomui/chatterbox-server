@@ -19,12 +19,12 @@ var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
+  'access-control-max-age': 10, // Seconds.
 };
 
 // req type
-  // route the req
-let messages = { results: [] };
+// route the req
+const messages = { results: [] };
 let i = 0;
 // messages.results.push({
 //   username: '',
@@ -34,54 +34,63 @@ let i = 0;
 // });
 const url = require('url');
 
-var requestHandler = function(request, response) {
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
+var requestHandler = function (request, response) {
+  console.log(`Serving request type ${request.method} for url ${request.url}`);
+  console.log(request.on.toString(), 'the request function');
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'application/json';
-  
+
   let newMessage;
   const query = querystring.parse(request.url, null, '?');
   const domain = Object.keys(query)[0];
   var pathname = url.parse(request.url).pathname;
-  
+
   if (request.url === '/') {
-    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.writeHead(200, { 'Content-Type': 'text/html' });
     response.end(fs.readFileSync('../index.html'));
   }
-  if (request.url === '/' + '?' + query['/']) {
-    response.writeHead(200, {'Content-Type': 'text/html'});
+  if (request.url === `${'/' + '?'}${query['/']}`) {
+    response.writeHead(200, { 'Content-Type': 'text/html' });
     response.end(fs.readFileSync('../index.html'));
   }
   if (pathname.includes('client/styles/styles')) {
-    response.writeHead(200, {'Content-Type': 'text/css'});
-    response.end(fs.readFileSync('..'+pathname));
-  }  
+    response.writeHead(200, { 'Content-Type': 'text/css' });
+    response.end(fs.readFileSync(`..${pathname}`));
+  }
   if (pathname.includes('client') || pathname.includes('node')) {
-    response.writeHead(200, {'Content-Type': 'text/javascript'});
-    response.end(fs.readFileSync('..'+pathname));
-  }  
+    response.writeHead(200, { 'Content-Type': 'text/javascript' });
+    response.end(fs.readFileSync(`..${pathname}`));
+  }
   // GET
   if (domain === '/classes/messages') {
     if (request.method === 'GET') {
       var statusCode = 200;
-      
-      response.writeHead(statusCode, headers); 
+
+      response.writeHead(statusCode, headers);
       response.end(JSON.stringify(messages));
     } else if (request.method === 'POST') {
       var statusCode = 201;
+
       response.writeHead(statusCode, headers);
-      request.on('data', data => {
+      request.on('data', (data) => {
         newMessage = JSON.parse(data.toString());
+        console.log(newMessage, '!!!');
         i++;
-        _.extend(newMessage, {objectId: i});
+        _.extend(newMessage, { objectId: i });
       });
-      request.on('end', () => {
+      var fark = request.on('end', () => {
         messages.results.push(newMessage);
-        response.end(JSON.stringify({objectId: i}));
+        response.end(JSON.stringify({ objectId: i }));
+        console.log('response start', response, 'response end');
+
+        // response.end('not necessary');
       });
+      // console.log('fark', fark, 'farkfark');
+      // setTimeout(() => {
+      //   console.log(fark._postData.text, 'async text');
+      // }, 1000);
     } else if (request.method === 'OPTIONS') {
-      response.writeHead(200, headers);  
+      response.writeHead(200, headers);
       response.end('OPTIONS SENT');
     } else {
       response.end('NO METHOD ROUTE FOUND');
